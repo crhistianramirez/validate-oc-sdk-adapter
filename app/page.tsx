@@ -1,4 +1,37 @@
-import Image from 'next/image'
+import Image from "next/image";
+import { Auth, Configuration } from "ordercloud-javascript-sdk";
+import fetchAdapter from "@haverstack/axios-fetch-adapter";
+
+Configuration.Set({
+  baseApiUrl: "https://sandboxapi.ordercloud.io",
+  axiosAdapter: fetchAdapter,
+});
+const login = async () => {
+  try {
+    const auth = await Auth.Login(
+      "YOUR_USERNAME",
+      "YOUR_PASSWORD",
+      "YOUR_CLIENT_ID"
+    );
+    console.log(auth.access_token);
+  } catch (error: any) {
+    if(error.isOrderCloudError) {
+      // the request was made and the API responded with a status code
+      // that falls outside of the range of 2xx, the error will be of type OrderCloudError
+      // https://ordercloud-api.github.io/ordercloud-javascript-sdk/classes/orderclouderror
+      console.log(error.message);
+      console.log(JSON.stringify(error.errors, null, 4));
+    } else if (error.request) {
+      // the request was made but no response received
+      // `error.request` is an instance of XMLHttpRequest in the browser and an instance of http.ClientRequest in node.js
+      console.log(error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.log('Error', error.message);
+    }
+  }
+};
+login();
 
 export default function Home() {
   return (
